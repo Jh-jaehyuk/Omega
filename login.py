@@ -3,6 +3,9 @@ import os
 from PyQt5.QtWidgets import QApplication, QWidget, QLineEdit, QPushButton, QVBoxLayout, QLabel, QMessageBox, QMainWindow, QDialog
 from collections import defaultdict
 
+import menu
+from menu import MainWindow as MW
+
 
 class LoginForm(QWidget):
     def __init__(self):
@@ -31,6 +34,10 @@ class LoginForm(QWidget):
 
     def loadDatabase(self):
         self.data = defaultdict(str)
+        if not os.path.exists('./users.csv'):
+            open('users.csv', 'w')
+            return self.data
+
         f = open('users.csv', 'r')
 
         while True:
@@ -50,6 +57,7 @@ class LoginForm(QWidget):
         userid = self.userid.text()
         password = self.password.text()
         data = self.loadDatabase()
+        flag = False
 
         if not userid or not password:
             if not userid:
@@ -59,8 +67,8 @@ class LoginForm(QWidget):
                 QMessageBox.warning(self, "로그인 실패", "비밀번호를 입력하세요.")
 
         elif data[userid] == password:
+            flag = True
             QMessageBox.information(self, "로그인 성공", "로그인 되었습니다!")
-            self.close()
 
         elif data[userid] == '':
             QMessageBox.warning(self, "로그인 실패", "존재하지 않는 아이디입니다.")
@@ -71,6 +79,12 @@ class LoginForm(QWidget):
         else:
             QMessageBox.warning(self, "로그인 실패", "ERRORRRRR!!!")
 
+        if flag:
+            self.close()
+            self.second = menu.MainWindow()
+            self.second.show()
+
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -79,7 +93,7 @@ class MainWindow(QMainWindow):
         self.resize(200, 150)
 
         self.centralWidget = QWidget(self)
-        self.setCentraWidget(self.centralWidget)
+        self.setCentralWidget(self.centralWidget)
         layout = QVBoxLayout(self.centralWidget)
 
         self.openLoginFormButton = QPushButton("로그인", self.centralWidget)
